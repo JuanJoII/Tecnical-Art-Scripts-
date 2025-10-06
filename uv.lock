@@ -1,8 +1,23 @@
 version = 1
 revision = 3
-requires-python = ">=3.13"
+requires-python = "==3.10.8"
 
 [[package]]
 name = "maya-python"
 version = "0.1.0"
 source = { virtual = "." }
+dependencies = [
+    { name = "maya-stubs" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "maya-stubs", specifier = ">=0.4.1" }]
+
+[[package]]
+name = "maya-stubs"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/76/22b910b2ebbcc306edac24c248fecc78591398a8d8500fa1c53263ea2973/maya_stubs-0.4.1.tar.gz", hash = "sha256:d9b8c515da2a446fdc493853a7dacb2758183208aef2f6f13e190c3d009cc8d5", size = 1358046, upload-time = "2024-01-16T22:20:25.811Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9f/ce/3b4b049140e19df5735adee90087db05f46558dad7a46ada684318c0e63a/maya_stubs-0.4.1-py2.py3-none-any.whl", hash = "sha256:d17e4b5bfced49d333991a1df0815c3eb159fce88fce0b23cb5e10d53d3480a7", size = 1376766, upload-time = "2024-01-16T22:20:21.751Z" },
+]

@@ -1,29 +1,18 @@
 import maya.cmds as cmds
 
-def constrain_joints_to_targets(joint_base="joint", target_base="spineTarget_ctrl", num_pairs=5):
-    """
-    Crea Parent Constraints entre cada joint y su target correspondiente.
-    Mantiene offset activado.
-    """
-    constraints = []
+def constrain_joints_to_targets(joint_base="joint", target_base="spineTarget_ctrl", num_pairs=None):
+    joints = cmds.ls(f"{joint_base}_*", type="joint")
+    targets = cmds.ls(f"{target_base}_*", type="transform")
+    num_pairs = num_pairs or min(len(joints), len(targets))
 
-    for i in range(1, num_pairs+1):
-        jnt = f"{joint_base}_{i:03d}"
-        tgt = f"{target_base}_{i:03d}"
-
+    for i in range(num_pairs):
+        jnt = f"{joint_base}_{i+1:03d}"
+        tgt = f"{target_base}_{i+1:03d}"
         if not cmds.objExists(jnt) or not cmds.objExists(tgt):
-            cmds.warning(f"⚠️ No se encontró {jnt} o {tgt}, se omite.")
             continue
+        cmds.parentConstraint(tgt, jnt, maintainOffset=True)
+        print(f"✅ ParentConstraint: {jnt} ← {tgt}")
 
-        con = cmds.parentConstraint(
-            tgt, jnt,
-            maintainOffset=True
-        )[0]
-
-        constraints.append(con)
-        print(f"✅ ParentConstraint creado: {jnt} ← {tgt}")
-
-    return constraints
 
 if __name__ == "__main__":
     constrain_joints_to_targets()

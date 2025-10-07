@@ -34,16 +34,20 @@ def open_spine_rig_ui():
     cmds.button(
         label="Paso 2 - Crear Locators",
         command=lambda *args: locators2curve.create_spine_locators(
-            curve_name=cmds.textFieldGrp(curve_name_field, q=True, text=True)
+            curve_name=cmds.textFieldGrp(curve_name_field, q=True, text=True),
+            num_locs=cmds.intFieldGrp(num_joints_field, q=True, value1=True)
         ),
     )
+
 
     cmds.button(
         label="Paso 3 - Conexión Decompose",
         command=lambda *args: doble_parent.connect_locators_to_curve(
-            curve_name=cmds.textFieldGrp(curve_name_field, q=True, text=True)
+            curve_name=cmds.textFieldGrp(curve_name_field, q=True, text=True),
+            num_locs=cmds.intFieldGrp(num_joints_field, q=True, value1=True)
         ),
     )
+
 
     cmds.button(
         label="Paso 4 - Crear Controles",

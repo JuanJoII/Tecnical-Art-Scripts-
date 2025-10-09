@@ -1,6 +1,9 @@
 import maya.cmds as cmds
 
-def create_spine_chain_s_shape(num_joints=5, base_name="joint", curve_name="splineCurve_001"):
+
+def create_spine_chain_s_shape(
+    num_joints=5, base_name="joint", curve_name="splineCurve_001"
+):
     """
     Crea una cadena de joints en forma de S y una curva spline perfectamente alineada.
     Cada joint corresponde a un CV de la curva.
@@ -15,7 +18,7 @@ def create_spine_chain_s_shape(num_joints=5, base_name="joint", curve_name="spli
     x_amp = 0.5
     for i in range(num_joints):
         # alterna izquierda/derecha
-        x = (-x_amp if i % 2 else x_amp)
+        x = -x_amp if i % 2 else x_amp
         y = i * height_step
         positions.append((x, y, 0))
 
@@ -35,7 +38,6 @@ def create_spine_chain_s_shape(num_joints=5, base_name="joint", curve_name="spli
     print("✅ Joints creados:", joints)
     print(f"✅ Curva alineada: {curve}")
 
-
     # Volver al root joint
     cmds.select(clear=True)
 
@@ -49,13 +51,13 @@ def create_spine_chain_s_shape(num_joints=5, base_name="joint", curve_name="spli
         spans=num_joints - 1,  # número de segmentos = joints - 1
         keepRange=0,
         keepControlPoints=False,
-        replaceOriginal=True
+        replaceOriginal=True,
     )
-
 
     print("✅ Joints creados:", joints)
     print(f"✅ Curva creada con forma de columna: {curve}")
     return joints, curve
+
 
 # Uso:
 # create_spine_chain_s_shape()

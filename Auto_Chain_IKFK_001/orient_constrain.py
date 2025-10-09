@@ -1,6 +1,7 @@
 import maya.cmds as cmds
 import re
 
+
 def create_leg_orient_constraints():
     """
     Crea orient constraints FK + IK -> MAIN para cada cadena MAIN encontrada en la escena.
@@ -39,13 +40,15 @@ def create_leg_orient_constraints():
     # 3) Procesar cada cadena MAIN por separado (root -> end)
     for root in main_roots:
         # obtener todos los descendants (devuelve hijo->descendientes), agregamos root y revertimos para root->end
-        descendants = cmds.listRelatives(root, ad=True, type="joint", fullPath=True) or []
+        descendants = (
+            cmds.listRelatives(root, ad=True, type="joint", fullPath=True) or []
+        )
         chain = descendants + [root]
         chain.reverse()  # ahora chain = [root, ..., end]
 
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print(f"Procesando cadena MAIN cuyo root es: {root}  (joints: {len(chain)})")
-        print("="*50)
+        print("=" * 50)
 
         for idx, main_full in enumerate(chain):
             main_short = main_full.split("|")[-1]
@@ -64,7 +67,9 @@ def create_leg_orient_constraints():
                     missing.append(f"FK expected: {fk_short}")
                 if not ik_long:
                     missing.append(f"IK expected: {ik_short}")
-                cmds.warning(f"⚠️ Mapeo faltante para MAIN '{main_short}': {missing}. Se omite este joint.")
+                cmds.warning(
+                    f"⚠️ Mapeo faltante para MAIN '{main_short}': {missing}. Se omite este joint."
+                )
                 continue
 
             fk = fk_long[0]
@@ -78,7 +83,7 @@ def create_leg_orient_constraints():
                 print(f"✅ OrientConstraint creado: {cons}")
                 print(f"   Drivers: {fk_short}, {ik_short}")
                 print(f"   Constrained: {main_short}")
-                print(f"   maintainOffset: False")
+                print("   maintainOffset: False")
             except Exception as e:
                 cmds.warning(f"⚠️ Error creando orientConstraint para {main_short}: {e}")
 
@@ -88,7 +93,11 @@ def create_leg_orient_constraints():
 
 def list_main_chains():
     """Helper rápido para debug - lista qué joints MAIN existen"""
-    mains = [j for j in cmds.ls(type="joint", long=True) if re.search(r"_MAIN_\d{3}$", j.split("|")[-1])]
+    mains = [
+        j
+        for j in cmds.ls(type="joint", long=True)
+        if re.search(r"_MAIN_\d{3}$", j.split("|")[-1])
+    ]
     roots = []
     for m in mains:
         parent = cmds.listRelatives(m, parent=True, type="joint", fullPath=True) or []
@@ -106,17 +115,19 @@ def verify_constraints():
     if not constraints:
         print("⚠️ No hay orient constraints en la escena")
         return
-    
-    print(f"\n{'='*50}")
+
+    print(f"\n{'=' * 50}")
     print(f"Verificando {len(constraints)} constraints...")
-    print(f"{'='*50}")
-    
+    print(f"{'=' * 50}")
+
     for cons in constraints:
         targets = cmds.orientConstraint(cons, query=True, targetList=True) or []
-        constrained = cmds.orientConstraint(cons, query=True, constrainedObject=True) or []
+        constrained = (
+            cmds.orientConstraint(cons, query=True, constrainedObject=True) or []
+        )
         weights = cmds.orientConstraint(cons, query=True, weight=True) or []
         maintain_offset = cmds.orientConstraint(cons, query=True, maintainOffset=True)
-        
+
         print(f"\n✓ {cons}")
         print(f"  Constrained: {constrained}")
         print(f"  Targets (Drivers): {targets}")

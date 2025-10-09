@@ -1,5 +1,13 @@
 import maya.cmds as cmds
-from Auto_Chain_IKFK_001 import rename_chain, create_fk_groups, ik_system, combine_curves, orient_constrain, create_fkik_atr, conect_fkik_nodes
+from Auto_Chain_IKFK_001 import (
+    rename_chain,
+    create_fk_groups,
+    ik_system,
+    combine_curves,
+    orient_constrain,
+    create_fkik_atr,
+    conect_fkik_nodes,
+)
 
 
 def open_ui():

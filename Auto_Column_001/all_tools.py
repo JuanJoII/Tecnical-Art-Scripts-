@@ -1,5 +1,14 @@
 import maya.cmds as cmds
-from Auto_Column_001 import joint_slpine, locators2curve, doble_parent, create_controls, tarjet_curve, aim_const, parent_const
+from Auto_Column_001 import (
+    joint_slpine,
+    locators2curve,
+    doble_parent,
+    create_controls,
+    tarjet_curve,
+    aim_const,
+    parent_const,
+)
+
 
 def open_spine_rig_ui():
     """Interfaz para crear y controlar el Spine Rig paso a paso."""
@@ -35,19 +44,17 @@ def open_spine_rig_ui():
         label="Paso 2 - Crear Locators",
         command=lambda *args: locators2curve.create_spine_locators(
             curve_name=cmds.textFieldGrp(curve_name_field, q=True, text=True),
-            num_locs=cmds.intFieldGrp(num_joints_field, q=True, value1=True)
+            num_locs=cmds.intFieldGrp(num_joints_field, q=True, value1=True),
         ),
     )
-
 
     cmds.button(
         label="Paso 3 - Conexión Decompose",
         command=lambda *args: doble_parent.connect_locators_to_curve(
             curve_name=cmds.textFieldGrp(curve_name_field, q=True, text=True),
-            num_locs=cmds.intFieldGrp(num_joints_field, q=True, value1=True)
+            num_locs=cmds.intFieldGrp(num_joints_field, q=True, value1=True),
         ),
     )
-
 
     cmds.button(
         label="Paso 4 - Crear Controles",
@@ -74,6 +81,7 @@ def open_spine_rig_ui():
     )
 
     cmds.showWindow(win)
+
 
 if __name__ == "__main__":
     open_spine_rig_ui()

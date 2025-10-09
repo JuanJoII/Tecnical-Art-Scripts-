@@ -1,5 +1,6 @@
 import maya.cmds as cmds
 
+
 def create_fkik_attribute(base_name="Leg_practice_L", version="001"):
     """
     Crea un locator con el atributo FKIK (0–1) y lo combina con el joint raíz.
@@ -21,7 +22,14 @@ def create_fkik_attribute(base_name="Leg_practice_L", version="001"):
 
     # Crear atributo FKIK
     if not cmds.attributeQuery("FKIK", node=shape_new, exists=True):
-        cmds.addAttr(shape_new, longName="FKIK", attributeType="float", min=0, max=1, defaultValue=0)
+        cmds.addAttr(
+            shape_new,
+            longName="FKIK",
+            attributeType="float",
+            min=0,
+            max=1,
+            defaultValue=0,
+        )
         cmds.setAttr(f"{shape_new}.FKIK", e=True, keyable=True)
 
     # Mover shape al joint raíz

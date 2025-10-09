@@ -1,7 +1,12 @@
 import maya.cmds as cmds
 from Auto_Column_001 import (
-    joint_slpine, locators2curve, doble_parent,
-    create_controls, tarjet_curve, aim_const, parent_const, all_tools
+    locators2curve,
+    doble_parent,
+    create_controls,
+    tarjet_curve,
+    aim_const,
+    parent_const,
+    all_tools,
 )
 
 
@@ -52,14 +57,22 @@ def open_spine_auto_rig_ui():
     if cmds.window("spineAutoRigWin", exists=True):
         cmds.deleteUI("spineAutoRigWin")
 
-    win = cmds.window("spineAutoRigWin", title="Spine Auto Rig Tool", widthHeight=(300, 200))
+    win = cmds.window(
+        "spineAutoRigWin", title="Spine Auto Rig Tool", widthHeight=(300, 200)
+    )
     cmds.columnLayout(adjustableColumn=True, rowSpacing=10)
 
     cmds.text(label="🦴 Spine Auto Rig Tool", align="center", height=30)
-    cmds.button(label="Crear desde cero", bgc=(0.3, 0.6, 0.3),
-                command=lambda *args: all_tools.open_spine_rig_ui())
-    cmds.button(label="Usar joints seleccionados", bgc=(0.3, 0.5, 0.8),
-                command=lambda *args: build_spine_from_existing_chain())
+    cmds.button(
+        label="Crear desde cero",
+        bgc=(0.3, 0.6, 0.3),
+        command=lambda *args: all_tools.open_spine_rig_ui(),
+    )
+    cmds.button(
+        label="Usar joints seleccionados",
+        bgc=(0.3, 0.5, 0.8),
+        command=lambda *args: build_spine_from_existing_chain(),
+    )
 
     cmds.showWindow(win)
 

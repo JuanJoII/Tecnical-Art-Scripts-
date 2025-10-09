@@ -1,5 +1,6 @@
 import maya.cmds as cmds
 
+
 def create_ik_system(base_name="Leg_practice_L", version="001"):
     """
     Construye la cadena IK siguiendo el paso 3 de la documentación.
@@ -30,11 +31,7 @@ def create_ik_system(base_name="Leg_practice_L", version="001"):
         print(f"✅ Grupo Pole Vector creado: {pv_grp}")
 
     # --- 2. Crear el IK Handle ---
-    ik_handle, effector = cmds.ikHandle(
-        sj=upper_joint,
-        ee=end_joint,
-        sol="ikRPsolver"
-    )
+    ik_handle, effector = cmds.ikHandle(sj=upper_joint, ee=end_joint, sol="ikRPsolver")
     ik_handle = cmds.rename(ik_handle, f"middleLeg_{base_name}_IKhandle_{version}")
     effector = cmds.rename(effector, f"middleLeg_{base_name}_effector_{version}")
     print(f"✅ IK Handle creado: {ik_handle}")
@@ -69,8 +66,9 @@ def create_ik_system(base_name="Leg_practice_L", version="001"):
         "ik_handle": ik_handle,
         "effector": effector,
         "pole_vector_grp": pv_grp,
-        "pole_vector_root": pv_root
+        "pole_vector_root": pv_root,
     }
+
 
 # Uso:
 # create_leg_ik_system()

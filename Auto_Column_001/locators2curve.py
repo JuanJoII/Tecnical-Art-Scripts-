@@ -1,8 +1,9 @@
 import maya.cmds as cmds
 
-def create_spine_locators(curve_name="splineCurve_001",
-                          num_locs=None,
-                          base_name="spineLoc_ctrl"):
+
+def create_spine_locators(
+    curve_name="splineCurve_001", num_locs=None, base_name="spineLoc_ctrl"
+):
     """
     Paso 2: Crea y alinea locators en cada CV de la curva spline.
     No realiza ninguna conexión nodal (eso lo hace el paso 3).
@@ -26,7 +27,7 @@ def create_spine_locators(curve_name="splineCurve_001",
 
     locators = []
     for i in range(num_locs):
-        loc_name = f"{base_name}_{i+1:03d}"
+        loc_name = f"{base_name}_{i + 1:03d}"
 
         # Crear locator (si no existe)
         if cmds.objExists(loc_name):

@@ -1,6 +1,9 @@
 import maya.cmds as cmds
 
-def connect_locators_to_curve(curve_name="splineCurve_001", base_name="spineLoc_ctrl", num_locs=None):
+
+def connect_locators_to_curve(
+    curve_name="splineCurve_001", base_name="spineLoc_ctrl", num_locs=None
+):
     """
     Conecta locators a los CVs de una curva spline usando nodos decomposeMatrix.
     Esta versión es robusta:
@@ -47,7 +50,7 @@ def connect_locators_to_curve(curve_name="splineCurve_001", base_name="spineLoc_
 
     processed = []
     for i in range(num_locs):
-        loc_short = f"{base_name}_{i+1:03d}"
+        loc_short = f"{base_name}_{i + 1:03d}"
         # resolver fullPath del locator específico
         loc_full = cmds.ls(loc_short, long=True) or []
         if not loc_full:
@@ -64,12 +67,19 @@ def connect_locators_to_curve(curve_name="splineCurve_001", base_name="spineLoc_
             decomp = cmds.createNode("decomposeMatrix", name=decomp_name)
 
         # Conectar worldMatrix -> decompose.inputMatrix si no está conectado
-        in_conns = cmds.listConnections(f"{decomp}.inputMatrix", s=True, d=False, plugs=True) or []
+        in_conns = (
+            cmds.listConnections(f"{decomp}.inputMatrix", s=True, d=False, plugs=True)
+            or []
+        )
         if not in_conns:
             try:
-                cmds.connectAttr(f"{loc}.worldMatrix[0]", f"{decomp}.inputMatrix", force=True)
+                cmds.connectAttr(
+                    f"{loc}.worldMatrix[0]", f"{decomp}.inputMatrix", force=True
+                )
             except Exception as e:
-                cmds.warning(f"⚠️ Falló conectar {loc}.worldMatrix → {decomp}.inputMatrix: {e}")
+                cmds.warning(
+                    f"⚠️ Falló conectar {loc}.worldMatrix → {decomp}.inputMatrix: {e}"
+                )
         else:
             # ya conectado, no hacemos nada
             pass
@@ -80,18 +90,24 @@ def connect_locators_to_curve(curve_name="splineCurve_001", base_name="spineLoc_
 
         if existing_src:
             # si ya está conectado desde este mismo decomp, ok; de lo contrario, no sobreescribir
-            already_from_this = any(src.startswith(f"{decomp}.outputTranslate") for src in existing_src)
+            already_from_this = any(
+                src.startswith(f"{decomp}.outputTranslate") for src in existing_src
+            )
             if already_from_this:
                 print(f"♻️ {dst_attr} ya conectado desde {decomp}. Se omite.")
             else:
-                cmds.warning(f"⚠️ {dst_attr} ya tiene conexión previa ({existing_src[0]}), se omite conectar desde {decomp}.")
+                cmds.warning(
+                    f"⚠️ {dst_attr} ya tiene conexión previa ({existing_src[0]}), se omite conectar desde {decomp}."
+                )
         else:
             try:
                 cmds.connectAttr(f"{decomp}.outputTranslate", dst_attr, force=True)
                 print(f"✅ {loc} conectado vía {decomp} → {dst_attr}")
                 processed.append(loc)
             except Exception as e:
-                cmds.warning(f"⚠️ Error conectando {decomp}.outputTranslate → {dst_attr}: {e}")
+                cmds.warning(
+                    f"⚠️ Error conectando {decomp}.outputTranslate → {dst_attr}: {e}"
+                )
 
     # --- Emparejar (parent) los locators bajo la curva de forma segura ---
     # Filtrar y evitar ciclos/auto-parent
@@ -111,7 +127,9 @@ def connect_locators_to_curve(curve_name="splineCurve_001", base_name="spineLoc_
             continue
         # evitar crear ciclo: si la curva es hija del locator (la curva tiene al locator como ancestro), no parentar
         if loc in curve_parents:
-            cmds.warning(f"⚠️ No se puede parentar {loc} bajo {curve_full} (crearía ciclo).")
+            cmds.warning(
+                f"⚠️ No se puede parentar {loc} bajo {curve_full} (crearía ciclo)."
+            )
             continue
         safe_to_parent.append(loc)
 
@@ -122,6 +140,8 @@ def connect_locators_to_curve(curve_name="splineCurve_001", base_name="spineLoc_
         except Exception as e:
             cmds.warning(f"⚠️ Error al emparentar locators: {e}")
     else:
-        print("♻️ No hay locators nuevos para emparentar (todos ya estaban o se detectaron riesgos).")
+        print(
+            "♻️ No hay locators nuevos para emparentar (todos ya estaban o se detectaron riesgos)."
+        )
 
     return processed

@@ -1,5 +1,6 @@
 import maya.cmds as cmds
 
+
 def connect_fkik_nodes(base_name="Leg_practice_L", version="001"):
     """
     Conecta el atributo FKIK del locator con los orientConstraints de la cadena MAIN.

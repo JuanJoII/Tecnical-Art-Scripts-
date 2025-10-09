@@ -1,6 +1,7 @@
 import maya.cmds as cmds
 import re
 
+
 def create_fk_groups():
     """
     Crea los grupos ROOT y AUTO para cada joint que tenga sufijo '_joint_###'.
@@ -42,8 +43,16 @@ def create_fk_groups():
         auto_name = re.sub(r"_joint_", "_auto_", jnt)
 
         # Crear grupos vacíos si no existen
-        root_grp = cmds.group(em=True, name=root_name) if not cmds.objExists(root_name) else root_name
-        auto_grp = cmds.group(em=True, name=auto_name) if not cmds.objExists(auto_name) else auto_name
+        root_grp = (
+            cmds.group(em=True, name=root_name)
+            if not cmds.objExists(root_name)
+            else root_name
+        )
+        auto_grp = (
+            cmds.group(em=True, name=auto_name)
+            if not cmds.objExists(auto_name)
+            else auto_name
+        )
 
         # Alinear al joint
         align_group_to_joint(root_grp, jnt)

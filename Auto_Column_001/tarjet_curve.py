@@ -1,6 +1,9 @@
 import maya.cmds as cmds
 
-def create_spine_targets(curve_name="splineCurve_001", num_targets=None, base_name="spineTarget_ctrl"):
+
+def create_spine_targets(
+    curve_name="splineCurve_001", num_targets=None, base_name="spineTarget_ctrl"
+):
     """
     Crea locators 'spineTarget_ctrl_###' distribuidos uniformemente sobre una curva.
     Usa arcLengthDimension para parametrizar de 0 a 1 independientemente de la longitud real.
@@ -28,9 +31,11 @@ def create_spine_targets(curve_name="splineCurve_001", num_targets=None, base_na
     targets = []
 
     for i in range(num_targets):
-        loc = cmds.spaceLocator(name=f"{base_name}_{i+1:03d}")[0]
+        loc = cmds.spaceLocator(name=f"{base_name}_{i + 1:03d}")[0]
         poc = cmds.createNode("pointOnCurveInfo", name=f"{loc}_POC")
-        cmds.connectAttr(f"{curve_shape}.worldSpace[0]", f"{poc}.inputCurve", force=True)
+        cmds.connectAttr(
+            f"{curve_shape}.worldSpace[0]", f"{poc}.inputCurve", force=True
+        )
         cmds.connectAttr(f"{poc}.position", f"{loc}.translate", force=True)
         cmds.setAttr(f"{poc}.turnOnPercentage", 0)
         cmds.setAttr(f"{poc}.parameter", i * step)

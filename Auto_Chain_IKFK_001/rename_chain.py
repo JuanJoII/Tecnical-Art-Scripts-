@@ -2,8 +2,6 @@ import maya.cmds as cmds
 import re
 
 
-import maya.cmds as cmds
-
 def orient_joint_chain(root_joint):
     """
     Orienta correctamente toda la jerarquía de joints desde el root hacia abajo.
@@ -26,10 +24,10 @@ def orient_joint_chain(root_joint):
         cmds.joint(
             root_joint,
             e=True,
-            orientJoint="xyz",          # Primary X, Secondary Y
+            orientJoint="xyz",  # Primary X, Secondary Y
             secondaryAxisOrient="zup",  # World orientation Z+
-            children=True,              # Orientar hijos
-            zeroScaleOrient=True        # Reorientar local scale axes
+            children=True,  # Orientar hijos
+            zeroScaleOrient=True,  # Reorientar local scale axes
         )
     except Exception as e:
         cmds.warning(f"⚠️ Error aplicando joint orientation en {root_joint}: {e}")
@@ -56,7 +54,6 @@ def get_last_joint(root_joint):
         if not children:
             return current
         current = children[0]
-
 
 
 def rename_hierarchy(
@@ -136,7 +133,9 @@ def create_ik_main_chains(base_name: str = "Leg_practice_L", chain_type: str = "
     """
     selection = cmds.ls(selection=True, type="joint")
     if not selection:
-        cmds.warning("⚠️ Selecciona el joint raíz de la cadena (debe ser el renombrado).")
+        cmds.warning(
+            "⚠️ Selecciona el joint raíz de la cadena (debe ser el renombrado)."
+        )
         return None
 
     root = selection[0]  # este debe ser el nuevo nombre devuelto por rename_hierarchy
@@ -186,7 +185,9 @@ def create_ik_main_chains(base_name: str = "Leg_practice_L", chain_type: str = "
         cmds.warning(f"⚠️ Error duplicando para MAIN: {e}")
         return result
 
-    main_renamed = rename_duplicate_chain(main_duplicate, base_name, "MAIN", original_version)
+    main_renamed = rename_duplicate_chain(
+        main_duplicate, base_name, "MAIN", original_version
+    )
     if main_renamed:
         orient_joint_chain(main_renamed[0])
         print("✅ Cadena MAIN creada y orientada correctamente")
@@ -202,6 +203,7 @@ def rename_duplicate_chain(root_node, base_name, suffix, version):
     Renombra todos los joints de una cadena duplicada con el sufijo y versión coherente.
     Retorna la lista de nombres renombrados (root→end).
     """
+
     def walk_chain(node):
         yield node
         children = cmds.listRelatives(node, type="joint", children=True) or []
@@ -265,7 +267,9 @@ def open_rename_parameters():
 
     cmds.button(label="Rename Selection", bgc=(0.3, 0.6, 0.3), command=apply_rename)
     cmds.separator()
-    cmds.button(label="Create IK and MAIN Chains", bgc=(0.6, 0.4, 0.2), command=create_ik_main)
+    cmds.button(
+        label="Create IK and MAIN Chains", bgc=(0.6, 0.4, 0.2), command=create_ik_main
+    )
 
     cmds.showWindow(win)
 

@@ -5,9 +5,10 @@ from pathlib import Path
 HOST = "127.0.0.1"
 PORT = 4434
 
+
 def enviar_archivo_a_maya(file_path: str):
     safe_path = str(file_path).replace("\\", "/")
-    maya_cmd  = f"exec(open(r'{safe_path}', encoding='utf-8').read())"
+    maya_cmd = f"exec(open(r'{safe_path}', encoding='utf-8').read())"
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
@@ -15,6 +16,7 @@ def enviar_archivo_a_maya(file_path: str):
             print(f"✅ Ejecutado en Maya con UTF-8: {safe_path}")
     except Exception as e:
         print("❌ Error:", e)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

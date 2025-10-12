@@ -25,6 +25,19 @@ def create_dynamic_curve_from_joint(base_name="dynamic_cv_001", num_spans=8):
         cmds.warning("La cadena debe tener al menos 2 joints.")
         return None
 
+    # PASO 1: Renombrar joints con convención simple
+    print("\n=== PASO 1: Renombrando joints con convención joint_XXX ===")
+    
+    renamed_chain = []
+    for i, joint in enumerate(joint_chain, start=1):
+        new_name = f"joint_{i:03d}"
+        renamed_joint = cmds.rename(joint, new_name)
+        renamed_chain.append(renamed_joint)
+        print(f"Joint renombrado: {joint} -> {renamed_joint}")
+    
+    joint_chain = renamed_chain
+    print(f"Cadena de joints renombrada: {joint_chain}\n")
+
     # Obtener posiciones en world space
     positions = [cmds.xform(j, q=True, ws=True, t=True) for j in joint_chain]
 

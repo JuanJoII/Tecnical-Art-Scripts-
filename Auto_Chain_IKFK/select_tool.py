@@ -1,5 +1,5 @@
 import maya.cmds as cmds
-from Auto_Chain_IKFK_001 import (
+from Auto_Chain_IKFK import (
     rename_chain,
     create_fk_groups,
     ik_system,

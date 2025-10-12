@@ -1,5 +1,5 @@
 import maya.cmds as cmds
-from Auto_Column_001 import (
+from Auto_Column import (
     joint_slpine,
     locators2curve,
     doble_parent,

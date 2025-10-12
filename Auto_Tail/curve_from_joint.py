@@ -1,5 +1,6 @@
 import maya.cmds as cmds
 
+
 def create_dynamic_curve_from_joint(base_name="dynamic_cv_001", num_spans=8):
     sel = cmds.ls(selection=True, type="joint")
     if not sel:
@@ -51,6 +52,7 @@ def create_dynamic_curve_from_joint(base_name="dynamic_cv_001", num_spans=8):
     cmds.select(curve)
     print("✅ Curva '{}' creada y reconstruida con {} spans.".format(curve, num_spans))
     return curve
+
 
 if __name__ == "__main__":
     create_dynamic_curve_from_joint()

@@ -24,7 +24,7 @@ def open_main_rig_launcher():
         label="🐍 Auto Tail Rig Tool",
         bgc=(0.3, 0.5, 0.8),
         height=40,
-        command=lambda *_: at_ui.auto_tail_ui()
+        command=lambda *_: at_ui.auto_tail_ui(),
     )
 
     # --- Spine Auto Rig ---
@@ -32,7 +32,7 @@ def open_main_rig_launcher():
         label="🦴 Spine Auto Rig Tool",
         bgc=(0.4, 0.7, 0.6),
         height=40,
-        command=lambda *_: spline_auto_rig.open_spine_auto_rig_ui()
+        command=lambda *_: spline_auto_rig.open_spine_auto_rig_ui(),
     )
 
     # --- IK/FK Rig Tools ---
@@ -40,14 +40,14 @@ def open_main_rig_launcher():
         label="🔗 IK / FK Rig Tools",
         bgc=(0.6, 0.6, 0.4),
         height=40,
-        command=lambda *_: select_tool.open_ui()
+        command=lambda *_: select_tool.open_ui(),
     )
 
     cmds.separator(height=15, style="in")
     cmds.button(
         label="❌ Cerrar",
         bgc=(0.5, 0.2, 0.2),
-        command=lambda *_: cmds.deleteUI(window_name)
+        command=lambda *_: cmds.deleteUI(window_name),
     )
 
     cmds.showWindow(window_name)

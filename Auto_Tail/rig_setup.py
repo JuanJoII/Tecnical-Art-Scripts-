@@ -45,33 +45,33 @@ def create_ik_joint_chain(first_joint):
     Retorna el primer y último joint de la cadena IK
     """
     print("\n=== Creando cadena de joints IK ===")
-    
+
     # Seleccionar el primer joint y duplicar toda la cadena
     cmds.select(first_joint, replace=True)
     duplicated = cmds.duplicate(first_joint, renameChildren=True)[0]
-    
+
     # Recorrer la cadena duplicada y renombrar todos los joints
     ik_joints_list = []
-    
+
     def rename_joint_chain(joint, index=[1]):
         new_name = f"joint_IK_{index[0]:03d}"
         renamed = cmds.rename(joint, new_name)
         ik_joints_list.append(renamed)
         print(f"Joint IK creado: {renamed}")
-        
+
         # Procesar hijos
         children = cmds.listRelatives(renamed, children=True, type="joint") or []
         for child in children:
             index[0] += 1
             rename_joint_chain(child, index)
-        
+
         return renamed
-    
+
     ik_root = rename_joint_chain(duplicated)
     ik_last = ik_joints_list[-1]
-    
+
     print(f"Cadena IK creada con raíz: {ik_root} y último: {ik_last}")
-    
+
     return ik_root, ik_last
 
 
@@ -90,9 +90,9 @@ def hair_rigging_setup():
         return False
 
     # Filtrar solo joints originales (sin sufijo IK)
-    original_joints = [j for j in all_joints if '_IK_' not in j]
+    original_joints = [j for j in all_joints if "_IK_" not in j]
     original_joints.sort()
-    
+
     first_joint = original_joints[0]
     last_joint = original_joints[-1]
 

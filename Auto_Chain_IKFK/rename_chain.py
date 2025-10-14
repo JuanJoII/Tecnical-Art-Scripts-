@@ -4,14 +4,22 @@ import re
 
 def orient_joint_chain(root_joint):
     """
+    PASO 1 PARA AUTO CHAIN IK/FK:
     Orienta correctamente toda la jerarquía de joints desde el root hacia abajo.
-    Coincide con las opciones del Orient Joint Tool:
-      - Primary Axis: X
-      - Secondary Axis: Y
-      - Secondary Axis World Orientation: Z+
-      - Orient children: True
-      - Reorient local scale axes: True
-    Limpia el jointOrient del último joint.
+
+    Args:
+        root_joint (str): Nombre del joint raíz a orientar
+
+    Configuración de orientación:
+        - Primary Axis: X
+        - Secondary Axis: Y
+        - Secondary Axis World Orientation: Z+
+        - Orient children: True
+        - Reorient local scale axes: True
+
+    Note:
+        - Limpia automáticamente el jointOrient del último joint en la cadena
+        - Sigue el estándar de rigging para orientación de joints
     """
     if not cmds.objExists(root_joint):
         cmds.warning(f"⚠️ No existe el joint raíz {root_joint}")
@@ -47,7 +55,15 @@ def orient_joint_chain(root_joint):
 
 
 def get_last_joint(root_joint):
-    """Devuelve el último joint en una cadena."""
+    """
+    Obtiene el último joint en una cadena jerárquica.
+
+    Args:
+        root_joint (str): Joint raíz desde donde empezar la búsqueda
+
+    Returns:
+        str: Nombre del último joint en la cadena
+    """
     current = root_joint
     while True:
         children = cmds.listRelatives(current, type="joint", children=True) or []
@@ -62,9 +78,25 @@ def rename_hierarchy(
     base_name: str = "Leg_practice_L",
 ):
     """
-    Renombra la jerarquía seleccionada y orienta la cadena renombrada.
-    Retorna la lista de nombres renombrados (en orden root→end).
-    Además selecciona el nuevo root para facilitar pasos siguientes.
+    PASO 2 PARA AUTO CHAIN IK/FK:
+    Renombra y orienta una cadena de joints siguiendo una convención específica.
+
+    Args:
+        chain_type (str): Tipo de cadena (default: "joint")
+        increment_version (bool): Si se debe incrementar la versión (default: True)
+        base_name (str): Nombre base para la nomenclatura (default: "Leg_practice_L")
+
+    Returns:
+        list: Lista de nombres de joints renombrados en orden jerárquico (root→end)
+
+    Requisitos:
+        - La cadena debe tener exactamente 3 joints
+        - Se debe seleccionar el joint raíz antes de ejecutar
+
+    Convención de nombres:
+        - upperLeg_{base_name}_{chain_type}_{version}
+        - middleLeg_{base_name}_{chain_type}_{version}
+        - endLeg_{base_name}_{chain_type}_{version}
     """
     selection = cmds.ls(selection=True, type="joint")
     if not selection:
@@ -86,6 +118,14 @@ def rename_hierarchy(
         cmds.warning(f"⚠️ No se encontraron joints hijos de {original_root}")
         return []
 
+    # 🔒 VALIDACIÓN: solo se permiten 3 joints
+    if len(joints) != 3:
+        cmds.warning(
+            f"⚠️ La cadena debe tener exactamente 3 joints (tiene {len(joints)}). "
+            "Por favor ajusta la jerarquía antes de renombrar."
+        )
+        return []
+
     renamed = []
     for i, obj in enumerate(joints, 1):
         if i == 1:
@@ -97,7 +137,6 @@ def rename_hierarchy(
 
         if increment_version:
             match = version_pattern.search(obj)
-            # Si el nombre original tiene un número, incrementarlo; si no, usar i
             current_version = int(match.group(1)) + 1 if match else i
         else:
             current_version = 1
@@ -107,19 +146,16 @@ def rename_hierarchy(
             renamed_joint = cmds.rename(obj, new_name)
         except Exception as e:
             cmds.warning(f"⚠️ Error renombrando {obj} → {new_name}: {e}")
-            renamed_joint = obj  # fallback al nombre original
+            renamed_joint = obj
         renamed.append(renamed_joint)
         print(f"✅ {obj} → {renamed_joint}")
 
-    # Nuevo root después del renombrado
     new_root = renamed[0]
-    # Seleccionar el nuevo root para que las siguientes funciones trabajen sobre él
     try:
         cmds.select(new_root, replace=True)
     except Exception:
         pass
 
-    # Orientar toda la cadena usando el nuevo nombre (no el antiguo)
     orient_joint_chain(new_root)
 
     return renamed
@@ -127,9 +163,22 @@ def rename_hierarchy(
 
 def create_ik_main_chains(base_name: str = "Leg_practice_L", chain_type: str = "joint"):
     """
-    Duplica la cadena renombrada (de la selección actual) y crea versiones IK y MAIN.
-    Cada duplicado se renombra y se orienta automáticamente.
-    Retorna un diccionario con referencias a las cadenas creadas.
+    PASO 3 PARA AUTO CHAIN IK/FK:
+    Genera las cadenas IK y MAIN a partir de la cadena base renombrada.
+
+    Args:
+        base_name (str): Nombre base para la nomenclatura (default: "Leg_practice_L")
+        chain_type (str): Tipo de cadena (default: "joint")
+
+    Returns:
+        dict: Diccionario con las referencias a las cadenas creadas
+              {'ik': [joints_ik], 'main': [joints_main]}
+
+    Proceso:
+        1. Duplica la cadena original
+        2. Crea versión IK y la orienta
+        3. Crea versión MAIN y la orienta
+        4. Mantiene la jerarquía y orientación correcta
     """
     selection = cmds.ls(selection=True, type="joint")
     if not selection:
@@ -200,8 +249,20 @@ def create_ik_main_chains(base_name: str = "Leg_practice_L", chain_type: str = "
 
 def rename_duplicate_chain(root_node, base_name, suffix, version):
     """
-    Renombra todos los joints de una cadena duplicada con el sufijo y versión coherente.
-    Retorna la lista de nombres renombrados (root→end).
+    Utilitario para renombrar cadenas duplicadas IK/MAIN.
+
+    Args:
+        root_node (str): Nombre del joint raíz de la cadena duplicada
+        base_name (str): Nombre base para la nomenclatura
+        suffix (str): Sufijo a aplicar (IK o MAIN)
+        version (str): Número de versión a usar
+
+    Returns:
+        list: Lista de joints renombrados en orden jerárquico
+
+    Convención:
+        {segmento}_{base_name}_{suffix}_{version}
+        donde segmento es: upperLeg, middleLeg o endLeg
     """
 
     def walk_chain(node):
@@ -238,6 +299,16 @@ def rename_duplicate_chain(root_node, base_name, suffix, version):
 
 
 def open_rename_parameters():
+    """
+    INTERFAZ GRÁFICA PARA AUTO CHAIN IK/FK:
+    Abre una ventana de Maya con controles para el proceso de renombrado.
+
+    Controles:
+        - Base Name: Nombre base para la nomenclatura
+        - Chain Type: Tipo de cadena
+        - Increment: Opción para incrementar versión
+        - Botones para ejecutar los pasos del proceso
+    """
     if cmds.window("renameWin", exists=True):
         cmds.deleteUI("renameWin")
 

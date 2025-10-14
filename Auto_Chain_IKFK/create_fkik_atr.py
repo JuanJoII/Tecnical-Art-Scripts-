@@ -1,9 +1,72 @@
+"""
+Auto Chain IK/FK System - Attribute Creation
+==========================================
+
+Este módulo maneja la creación del atributo de blend IK/FK para el sistema,
+combinando un locator con el joint raíz para controlar la interpolación entre sistemas.
+
+Pipeline Steps:
+    1. Orient Joint Chain
+    2. Rename Hierarchy
+    3. Create IK/MAIN Chains
+    4. Create IK System
+    5. Create Orient Constraints
+    6. Create FKIK Attribute (este módulo)
+
+Estructura:
+    - Locator (temporal)
+    - Shape con atributo FKIK
+    - Conexión al joint raíz
+
+Convención de Nombres:
+    {basename}_attributes_{version}
+    Ejemplo:
+        - Leg_practice_L_attributes_001
+        - Leg_practice_L_attributesShape_001
+"""
+
 import maya.cmds as cmds
 
 
 def create_fkik_attribute(base_name="Leg_practice_L", version="001"):
     """
-    Crea un locator con el atributo FKIK (0–1) y lo combina con el joint raíz.
+    PASO 6 PARA AUTO CHAIN IK/FK:
+    Crea y configura el atributo de blend entre sistemas FK e IK.
+
+    Args:
+        base_name (str): Nombre base para la nomenclatura (default: "Leg_practice_L")
+        version (str): Número de versión para el sistema (default: "001")
+
+    Returns:
+        str: Nombre del shape creado con el atributo FKIK, None si hay error
+
+    Proceso Técnico:
+        1. Validación del joint raíz
+        2. Creación del locator temporal
+           - Nombrado según convención
+           - Shape renombrado
+        3. Setup del atributo FKIK
+           - Rango: 0.0 (FK) a 1.0 (IK)
+           - Default: 0.0 (FK)
+           - Keyable: True
+        4. Transferencia al joint
+           - Shape parented al joint raíz
+           - Cleanup del locator temporal
+
+    Requisitos:
+        - Joint raíz ya creado y renombrado
+        - Nomenclatura: upperLeg_{base_name}_joint_{version}
+
+    Ejemplo:
+        >>> result = create_fkik_attribute("Leg_practice_L", "001")
+        >>> print(result)
+        "Leg_practice_L_attributesShape_001"
+
+    Notas:
+        - El atributo FKIK se usa para blend entre sistemas
+        - 0 = FK control total
+        - 1 = IK control total
+        - Valores intermedios = blend proporcional
     """
     root_joint = f"upperLeg_{base_name}_joint_{version}"
     if not cmds.objExists(root_joint):

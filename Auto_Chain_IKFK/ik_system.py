@@ -1,10 +1,78 @@
+"""
+Auto Chain IK/FK System - IK Setup
+================================
+
+Este módulo maneja la creación del sistema IK (Inverse Kinematics) para una cadena de 3 joints,
+incluyendo la configuración del IK handle, pole vector y controles.
+
+Pipeline Steps:
+    1. Orient Joint Chain
+    2. Rename Hierarchy
+    3. Create IK System (este módulo)
+    4. Create Orient Constraints
+
+Estructura del Sistema IK:
+    - IK Handle (RPsolver)
+    - Pole Vector Control
+    - Effector
+    - Grupos de organización
+
+Convención de Nombres:
+    {segment}_{basename}_IK_{version}
+    Ejemplo:
+        - upperLeg_Leg_practice_L_IK_001
+        - middleLeg_Leg_practice_L_IKpoleVector_001
+        - middleLeg_Leg_practice_L_IKhandle_001
+"""
+
 import maya.cmds as cmds
 
 
 def create_ik_system(base_name="Leg_practice_L", version="001"):
     """
-    Construye la cadena IK siguiendo el paso 3 de la documentación.
-    Crea el IK handle, effector, pole vector y sus grupos asociados.
+    PASO 3 PARA AUTO CHAIN IK/FK:
+    Construye un sistema IK completo para una cadena de 3 joints.
+
+    Args:
+        base_name (str): Nombre base para la nomenclatura (default: "Leg_practice_L")
+        version (str): Número de versión para el sistema (default: "001")
+
+    Returns:
+        dict: Referencias a los elementos creados
+            {
+                "ik_handle": str,      # IK handle principal
+                "effector": str,       # Effector del IK
+                "pole_vector_grp": str, # Grupo del pole vector
+                "pole_vector_root": str # Grupo raíz del sistema
+            }
+
+    Proceso Técnico:
+        1. Validación de joints IK existentes
+        2. Creación del grupo Pole Vector
+           - Posicionamiento en joint medio
+           - Offset de 5 unidades en Y+
+        3. Setup del IK Handle
+           - RPsolver para rotación natural
+           - Conexión start/end joints
+        4. Configuración Pole Vector
+           - Constraint al IK handle
+           - Grupo root para organización
+        5. Control visual del Pole Vector
+           - Curva circular como shape
+           - Radio: 1.5 unidades
+           - Normal: X axis
+
+    Requisitos:
+        - Cadena IK ya creada y renombrada
+        - 3 joints en la siguiente estructura:
+          * upperLeg_{base_name}_IK_{version}
+          * middleLeg_{base_name}_IK_{version}
+          * endLeg_{base_name}_IK_{version}
+
+    Ejemplo:
+        >>> result = create_ik_system("Leg_practice_L", "001")
+        >>> print(result["ik_handle"])
+        "middleLeg_Leg_practice_L_IKhandle_001"
     """
     # --- Definir nombres base ---
     upper_joint = f"upperLeg_{base_name}_IK_{version}"

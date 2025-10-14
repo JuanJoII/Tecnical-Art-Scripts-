@@ -2,12 +2,71 @@ import maya.cmds as cmds
 import re
 
 
+"""
+Auto Chain IK/FK System - FK Groups Setup
+=======================================
+
+Este módulo maneja la creación de grupos de control FK para una cadena de joints,
+estableciendo la jerarquía necesaria para animación y control.
+
+Pipeline Steps:
+    1. Orient Joint Chain
+    2. Create FK Groups (este módulo)
+    3. Create IK/MAIN Chains
+    4. Create IK System
+    5. Create Orient Constraints
+    6. Create FKIK Attribute
+
+Estructura Jerárquica:
+    root_group
+    └── auto_group
+        └── joint
+            └── child_root_group
+                └── child_auto_group
+                    └── child_joint
+
+Convención de Nombres:
+    {segment}_{basename}_{type}_{version}
+    Tipos:
+        - _root_: Grupo de offset/space switch
+        - _auto_: Grupo de automatización
+        - _joint_: Joint original
+"""
+
+
 def create_fk_groups():
     """
-    Crea los grupos ROOT y AUTO para cada joint que tenga sufijo '_joint_###'.
-    Inserta '_root_' y '_auto_' justo antes del número de versión.
-    Estructura final (de arriba hacia abajo):
-        upper_root → upper_auto → upper_joint → middle_root → ...
+    PASO 2 PARA AUTO CHAIN IK/FK:
+    Crea los grupos ROOT y AUTO para cada joint FK.
+
+    Returns:
+        list[tuple]: Lista de grupos creados
+            [(root_grp, auto_grp, joint), ...]
+
+    Proceso Técnico:
+        1. Identificación de joints FK
+           - Busca sufijo '_joint_###'
+           - Determina joint raíz
+           - Ordena jerarquía
+
+        2. Creación de Grupos
+           - ROOT: Control de offset/space
+           - AUTO: Automatizaciones/constraints
+           - Mantiene nombres originales
+
+        3. Estructura Jerárquica
+           - Alinea grupos a joints
+           - Establece parentesco
+           - Preserva transformaciones
+
+    Requisitos:
+        - Joints ya creados y renombrados
+        - Sufijo '_joint_###' en cada joint
+        - Jerarquía válida (padre→hijo)
+
+    Ejemplo:
+        >>> groups = create_fk_groups()
+        >>> print(groups[0])  # (root, auto, joint) del primer set
     """
     # Buscar todos los joints válidos en escena
     all_joints = [j for j in cmds.ls(type="joint") if re.search(r"_joint_\d{3}$", j)]
@@ -79,7 +138,21 @@ def create_fk_groups():
 
 
 def align_group_to_joint(group, joint):
-    """Alinea un grupo vacío a la posición y orientación de un joint."""
+    """
+    Alinea un grupo vacío a un joint específico.
+
+    Args:
+        group (str): Nombre del grupo a alinear
+        joint (str): Nombre del joint objetivo
+
+    Returns:
+        str: Nombre del grupo alineado
+
+    Proceso:
+        1. Parent constraint temporal
+        2. Limpieza del constraint
+        3. Freeze transformaciones
+    """
     tmp = cmds.parentConstraint(joint, group, mo=False)
     cmds.delete(tmp)
     cmds.makeIdentity(group, apply=True, t=True, r=True, s=True)

@@ -1,14 +1,59 @@
+"""
+Auto Chain IK/FK Constraint System
+================================
+
+Este módulo maneja la creación de constraints para el sistema IK/FK,
+específicamente orientando las cadenas MAIN basándose en las cadenas FK e IK.
+
+Pipeline Steps:
+    1. Orient Joint Chain
+    2. Rename Hierarchy
+    3. Create IK/MAIN Chains
+    4. Create Orient Constraints (este módulo)
+
+Jerarquía Esperada:
+    - joints_FK  (drivers)
+    - joints_IK  (drivers)
+    - joints_MAIN (constrained)
+
+Convención de Nombres:
+    {segment}_{basename}_{type}_{version}
+    Ejemplo:
+        - upperLeg_Leg_practice_L_joint_001 (FK)
+        - upperLeg_Leg_practice_L_IK_001    (IK)
+        - upperLeg_Leg_practice_L_MAIN_001  (MAIN)
+"""
+
 import maya.cmds as cmds
 import re
 
 
 def create_leg_orient_constraints():
     """
-    Crea orient constraints FK + IK -> MAIN para cada cadena MAIN encontrada en la escena.
-    - Agrupa por root de cadena para procesar cada cadena en orden root->end.
-    - Para cada joint MAIN busca su FK y su IK.
-    - IMPORTANTE: El orden es FK, IK -> MAIN (los drivers primero, luego el constrained).
-    - maintainOffset = False (desactivado) para que MAIN se oriente en valores intermedios.
+    PASO 4 PARA AUTO CHAIN IK/FK:
+    Crea orient constraints para el sistema de blend IK/FK.
+
+    Proceso:
+        1. Identifica todos los joints MAIN en la escena
+        2. Agrupa por cadenas (root → end)
+        3. Para cada joint MAIN:
+            - Localiza su correspondiente FK e IK
+            - Crea orient constraint en orden: FK + IK → MAIN
+            - Configura weights para blend
+
+    Configuración Técnica:
+        - Orden de Drivers: [FK, IK]
+        - Target: MAIN joint
+        - maintainOffset: False (permite orientación intermedia)
+        - Weights: Configurados para blend 0-1
+
+    Returns:
+        list[str]: Nombres de los constraints creados
+
+    Requisitos:
+        - Cadenas FK/IK/MAIN ya creadas
+        - Nomenclatura correcta (_joint/_IK/_MAIN)
+        - Jerarquías completas (3 joints por cadena)
     """
     # 1) Buscar todos los joints cuyo nombre corto termine en _MAIN_###.
     all_joints = cmds.ls(type="joint", long=True) or []
@@ -92,7 +137,19 @@ def create_leg_orient_constraints():
 
 
 def list_main_chains():
-    """Helper rápido para debug - lista qué joints MAIN existen"""
+    """
+    Utilidad de diagnóstico para el sistema IK/FK.
+
+    Lista todas las cadenas MAIN detectadas en la escena,
+    mostrando sus roots para verificar la estructura correcta.
+
+    Returns:
+        list[str]: Lista de joints root MAIN encontrados
+
+    Uso:
+        >>> roots = list_main_chains()
+        >>> print(f"Encontradas {len(roots)} cadenas MAIN")
+    """
     mains = [
         j
         for j in cmds.ls(type="joint", long=True)
@@ -110,7 +167,26 @@ def list_main_chains():
 
 
 def verify_constraints():
-    """Verifica los constraints creados y su estado"""
+    """
+    Sistema de verificación para constraints IK/FK.
+
+    Analiza todos los orient constraints en la escena y muestra:
+        - Objetos restringidos (MAIN joints)
+        - Drivers (FK/IK joints)
+        - Configuración de weights
+        - Estado de maintainOffset
+
+    Uso:
+        Ejecutar después de create_leg_orient_constraints()
+        para validar la configuración correcta.
+
+    Output Format:
+        ✓ [constraint_name]
+          Constrained: [MAIN_joint]
+          Targets: [FK_joint, IK_joint]
+          Weights: [w1, w2]
+          MaintainOffset: [True/False]
+    """
     constraints = cmds.ls(type="orientConstraint") or []
     if not constraints:
         print("⚠️ No hay orient constraints en la escena")

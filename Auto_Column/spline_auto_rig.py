@@ -25,11 +25,44 @@ def get_joint_chain_from_selection():
     return chain
 
 
+def rename_joint_chain_if_needed(chain):
+    """
+    Renombra la cadena de joints seleccionada si el root no se llama 'joint_001'.
+    Usa el patrón estándar: joint_001, joint_002, joint_003, etc.
+    """
+    if not chain:
+        return chain
+
+    root_name = chain[0]
+    if root_name == "joint_001":
+        print("✅ Los joints ya tienen el nombre correcto, no se renombrará.")
+        return chain
+
+    print("🧩 Renombrando cadena de joints al formato 'joint_001'...")
+    renamed_chain = []
+
+    for i, jnt in enumerate(chain, start=1):
+        new_name = f"joint_{i:03d}"
+        try:
+            new_name = cmds.rename(jnt, new_name)
+            renamed_chain.append(new_name)
+            print(f"   {jnt} → {new_name}")
+        except Exception as e:
+            cmds.warning(f"⚠️ No se pudo renombrar {jnt}: {e}")
+            renamed_chain.append(jnt)
+
+    print("✅ Cadena renombrada correctamente.")
+    return renamed_chain
+
+
 def build_spine_from_existing_chain():
     """Crea la estructura del rig a partir de una cadena existente."""
     chain = get_joint_chain_from_selection()
     if not chain:
         return
+
+    # 🔁 Renombrar si es necesario
+    chain = rename_joint_chain_if_needed(chain)
 
     num_joints = len(chain)
     base_name = chain[0].split("_")[0]  # inferencia del prefijo

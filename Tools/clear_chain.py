@@ -54,7 +54,9 @@ def create_clean_chain_from_selection():
     try:
         old_root_path = f"{clear_grp}|{root_joint}"
         if not cmds.objExists(old_root_path):
-            candidates = cmds.listRelatives(clear_grp, allDescendents=True, type="joint") or []
+            candidates = (
+                cmds.listRelatives(clear_grp, allDescendents=True, type="joint") or []
+            )
             old_chain_paths = []
             for n in orig_names:
                 found = [c for c in candidates if c.split("|")[-1] == n]
@@ -64,7 +66,10 @@ def create_clean_chain_from_selection():
                     old_chain_paths.append(None)
         else:
             old_chain_paths = [old_root_path]
-            children = cmds.listRelatives(old_root_path, allDescendents=True, type="joint") or []
+            children = (
+                cmds.listRelatives(old_root_path, allDescendents=True, type="joint")
+                or []
+            )
             if children:
                 desc = list(reversed(children))
                 old_chain_paths += desc
@@ -73,16 +78,25 @@ def create_clean_chain_from_selection():
 
     if not old_chain_paths:
         old_chain_paths = []
-        candidates = cmds.listRelatives(clear_grp, allDescendents=True, type="joint") or []
-        def depth(p): return p.count("|")
+        candidates = (
+            cmds.listRelatives(clear_grp, allDescendents=True, type="joint") or []
+        )
+
+        def depth(p):
+            return p.count("|")
+
         candidates_sorted = sorted(candidates, key=depth)
         for name in orig_names:
-            found = next((c for c in candidates_sorted if c.split("|")[-1] == name), None)
+            found = next(
+                (c for c in candidates_sorted if c.split("|")[-1] == name), None
+            )
             old_chain_paths.append(found)
 
     for orig_name, old_path in zip(reversed(orig_names), reversed(old_chain_paths)):
         if not old_path:
-            cmds.warning(f"⚠️ No se encontró nodo antiguo para '{orig_name}' dentro de {clear_grp}.")
+            cmds.warning(
+                f"⚠️ No se encontró nodo antiguo para '{orig_name}' dentro de {clear_grp}."
+            )
             continue
         new_old_name = f"{orig_name}{suffix}"
         try:
@@ -95,10 +109,14 @@ def create_clean_chain_from_selection():
     for orig_name in orig_names:
         old_name_with_suffix = f"{orig_name}{suffix}"
         if not cmds.objExists(old_name_with_suffix):
-            cmds.warning(f"⚠️ No se encontró {old_name_with_suffix} para leer posición; se usará 0,0,0.")
+            cmds.warning(
+                f"⚠️ No se encontró {old_name_with_suffix} para leer posición; se usará 0,0,0."
+            )
             positions.append([0, 0, 0])
         else:
-            pos = cmds.xform(old_name_with_suffix, query=True, worldSpace=True, translation=True)
+            pos = cmds.xform(
+                old_name_with_suffix, query=True, worldSpace=True, translation=True
+            )
             positions.append(pos)
 
     cmds.select(clear=True)
@@ -113,8 +131,14 @@ def create_clean_chain_from_selection():
             created_joints.append(j)
 
     try:
-        cmds.joint(created_joints[0], e=True, orientJoint="xyz",
-                   secondaryAxisOrient="zup", children=True, zeroScaleOrient=True)
+        cmds.joint(
+            created_joints[0],
+            e=True,
+            orientJoint="xyz",
+            secondaryAxisOrient="zup",
+            children=True,
+            zeroScaleOrient=True,
+        )
         last = created_joints[-1]
         for axis in ["jointOrientX", "jointOrientY", "jointOrientZ"]:
             if cmds.objExists(f"{last}.{axis}"):

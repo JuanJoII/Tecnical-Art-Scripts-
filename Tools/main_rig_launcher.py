@@ -2,6 +2,7 @@ import maya.cmds as cmds
 from Auto_Tail import at_ui
 from Auto_Column import spline_auto_rig
 from Auto_Chain_IKFK import select_tool
+from Tools import clear_chain
 
 
 def open_main_rig_launcher():
@@ -13,7 +14,7 @@ def open_main_rig_launcher():
     if cmds.window(window_name, exists=True):
         cmds.deleteUI(window_name)
 
-    cmds.window(window_name, title="🎛️ Rigging Tools Launcher", widthHeight=(320, 280))
+    cmds.window(window_name, title="🎛️ Rigging Tools Launcher", widthHeight=(320, 330))
     cmds.columnLayout(adjustableColumn=True, rowSpacing=12, columnAlign="center")
 
     cmds.text(label="🦾 Central de Herramientas de Rigging", height=30, align="center")
@@ -43,10 +44,21 @@ def open_main_rig_launcher():
         command=lambda *_: select_tool.open_ui(),
     )
 
+    # --- Clear Chain Tool ---
+    cmds.button(
+        label="🧹 Limpiar Cadena (Clear Rig)",
+        bgc=(0.5, 0.7, 0.9),
+        height=40,
+        command=lambda *_: clear_chain.create_clean_chain_from_selection(),
+    )
+
     cmds.separator(height=15, style="in")
+
+    # --- Cerrar ---
     cmds.button(
         label="❌ Cerrar",
         bgc=(0.5, 0.2, 0.2),
+        height=35,
         command=lambda *_: cmds.deleteUI(window_name),
     )
 
